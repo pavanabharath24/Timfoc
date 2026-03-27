@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Timfoc - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface-variant": "#c9c4d5",
+              "on-primary-container": "#ae8de7",
+              "surface-variant": "#333348",
+              "on-tertiary": "#15267b",
+              "primary": "#d4bbff",
+              "error-container": "#93000a",
+              "surface-container-high": "#28283d",
+              "surface-bright": "#37374d",
+              "on-secondary-fixed": "#291800",
+              "inverse-surface": "#e2e0fc",
+              "surface-container": "#1e1e32",
+              "on-error-container": "#ffdad6",
+              "surface-container-highest": "#333348",
+              "surface-container-low": "#1a1a2e",
+              "surface-tint": "#d4bbff",
+              "on-tertiary-fixed": "#00105b",
+              "on-secondary-fixed-variant": "#633f00",
+              "on-tertiary-fixed-variant": "#2f3f92",
+              "on-tertiary-container": "#8897f0",
+              "primary-fixed": "#ebdcff",
+              "surface-container-lowest": "#0c0c1f",
+              "on-primary-fixed-variant": "#543589",
+              "inverse-on-surface": "#2f2e43",
+              "secondary-container": "#c3841b",
+              "background": "#111125",
+              "on-surface": "#e2e0fc",
+              "outline-variant": "#474553",
+              "on-primary-fixed": "#270058",
+              "on-background": "#e2e0fc",
+              "error": "#ffb4ab",
+              "secondary-fixed": "#ffddb4",
+              "outline": "#928f9e",
+              "tertiary-fixed-dim": "#bac3ff",
+              "secondary-fixed-dim": "#ffb954",
+              "tertiary-fixed": "#dee0ff",
+              "primary-container": "#412175",
+              "surface-dim": "#111125",
+              "surface": "#111125",
+              "primary-fixed-dim": "#d4bbff",
+              "on-secondary-container": "#3c2500",
+              "on-error": "#690005",
+              "on-secondary": "#452b00",
+              "inverse-primary": "#6d4ea2",
+              "tertiary": "#bac3ff",
+              "tertiary-container": "#1b2b7f",
+              "secondary": "#ffb954",
+              "on-primary": "#3d1c71"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .grainy {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body min-h-screen flex flex-col selection:bg-secondary selection:text-on-secondary overflow-x-hidden">
+<div class="grainy fixed inset-0 z-[100]"></div>
+<!-- TopAppBar -->
+<header class="bg-[#111125] dark:bg-[#111125] flex items-center justify-between px-6 py-4 w-full sticky top-0 z-40 tonal-shift">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#ffb954] dark:text-[#ffb954]">temp_preferences_custom</span>
+<h1 class="font-['Space_Grotesk'] font-bold tracking-tight text-2xl text-[#ffb954] tracking-tighter">Timfoc</h1>
+</div>
+<button class="text-[#474553] hover:bg-[#1a1a2e] transition-colors p-2 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<main class="flex-1 w-full max-w-2xl mx-auto px-6 pt-8 pb-32 space-y-10">
+<!-- Editorial Header Section -->
+<section class="ml-4 md:ml-12 mb-12">
+<p class="font-headline text-secondary text-sm font-semibold uppercase tracking-[0.2em] mb-2">Preferences</p>
+<h2 class="font-headline text-5xl font-bold tracking-tight leading-tight">Your <br/>Sanctum.</h2>
+</section>
+<!-- Timer Intervals Bento Section -->
+<div class="grid grid-cols-1 gap-4">
+<div class="bg-surface-container-low rounded-lg p-8 space-y-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">schedule</span>
+<h3 class="font-headline text-xl font-bold">Focus Duration</h3>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-end">
+<span class="text-on-surface-variant font-medium">Work Session</span>
+<span class="text-3xl font-headline font-bold text-secondary">25 <small class="text-xs uppercase tracking-widest opacity-50">min</small></span>
+</div>
+<input class="w-full h-3 bg-surface-container rounded-full appearance-none cursor-pointer accent-secondary" max="90" min="5" type="range" value="25"/>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-end">
+<span class="text-on-surface-variant font-medium">Short Break</span>
+<span class="text-3xl font-headline font-bold text-secondary">05 <small class="text-xs uppercase tracking-widest opacity-50">min</small></span>
+</div>
+<input class="w-full h-3 bg-surface-container rounded-full appearance-none cursor-pointer accent-secondary" max="20" min="1" type="range" value="5"/>
+</div>
+</div>
+</div>
+<!-- System Toggles Section -->
+<div class="bg-surface-container-low rounded-lg overflow-hidden">
+<div class="p-8 pb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">notifications_active</span>
+<h3 class="font-headline text-xl font-bold">Feedback &amp; Alerts</h3>
+</div>
+</div>
+<div class="divide-y divide-outline-variant/10">
+<label class="flex items-center justify-between p-8 hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex flex-col gap-1">
+<span class="font-bold text-lg group-hover:text-primary transition-colors">Sound Notifications</span>
+<span class="text-sm text-on-surface-variant">Soft chimes for session changes</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-8 bg-surface-container rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-on-secondary after:content-[''] after:absolute after:top-1 after:left-1 after:bg-outline-variant peer-checked:after:bg-on-secondary after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+</div>
+</label>
+<label class="flex items-center justify-between p-8 hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex flex-col gap-1">
+<span class="font-bold text-lg group-hover:text-primary transition-colors">Haptic Feedback</span>
+<span class="text-sm text-on-surface-variant">Tactile touch during interactions</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-8 bg-surface-container rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-on-secondary after:content-[''] after:absolute after:top-1 after:left-1 after:bg-outline-variant peer-checked:after:bg-on-secondary after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+</div>
+</label>
+<label class="flex items-center justify-between p-8 hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex flex-col gap-1">
+<span class="font-bold text-lg group-hover:text-primary transition-colors">Daily Reminder</span>
+<span class="text-sm text-on-surface-variant">Stay consistent with your routine</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-8 bg-surface-container rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-on-secondary after:content-[''] after:absolute after:top-1 after:left-1 after:bg-outline-variant peer-checked:after:bg-on-secondary after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+</div>
+</label>
+</div>
+</div>
+<!-- Lofi Background Selection -->
+<section class="space-y-6">
+<div class="flex items-center gap-3 ml-4">
+<span class="material-symbols-outlined text-primary">palette</span>
+<h3 class="font-headline text-xl font-bold">Atmosphere</h3>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<button class="relative group h-40 rounded-lg overflow-hidden border-2 border-secondary ring-4 ring-secondary/20">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent z-10"></div>
+<img class="absolute inset-0 w-full h-full object-cover grayscale-[0.2] transition-transform duration-700 group-hover:scale-110" data-alt="Dreamy lo-fi illustration of a quiet bedroom at night with soft moonlight and purple aesthetic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADw32YEfzTVgEoFbewyLnzy8RPpkZ3dBndvM_ChkbLqAs18qgIY_P84anEL2wh6B14N-33dT0Td40ZtTJL6wWcVgH-mx0FtpDFfFVZXFptk2j5fuPqZoDtlfV6W2n7xXpAj2V8v46foUM0tasBICMBdK6BjvRNC6_4fGgogs4-POBsjwOiYCM9bwczfDmpV0qXv4yA2NY-CrGONOYXDT6w9jLiUxmoIHW7TB90oLl-9-fIznFOqtIdZkqqvC3cxRDWCI4LdN2ioJjX"/>
+<div class="absolute bottom-4 left-4 z-20 flex flex-col items-start">
+<span class="text-xs uppercase tracking-widest font-bold text-secondary mb-1">Active</span>
+<span class="font-headline font-bold text-lg">Midnight Rain</span>
+</div>
+</button>
+<button class="relative group h-40 rounded-lg overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent z-10"></div>
+<img class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-700 group-hover:scale-110 group-hover:grayscale-0" data-alt="Warm cozy cafe with golden hour sunlight streaming through windows and a soft vintage grainy texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1PHer1arXQhoDilusAP44ZsaJE1ljFnDOA-RVDLXd0wJpPpfi8H9qX5ffYy5jB0mRWjnMfqXURzhia2zx3bACAbL0jgmFBhhKHQL2HrJqVktzvJhoQu9BqRAkwdsELqkPHs8fAbmoO1jXxOsHFEDhmsJDjCiNi54B77RiSYagahcWr3Gq2FSPKlQqyI7cINC5n__hAEN8r2hUF_KHWvJpEiuhQ3C2Ghargc14TbyHk7r_axDzwkeawRh_nj5DiP181k3hwMiQUpQE"/>
+<div class="absolute bottom-4 left-4 z-20">
+<span class="font-headline font-bold text-lg">Solaris Cafe</span>
+</div>
+</button>
+<button class="relative group h-40 rounded-lg overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent z-10"></div>
+<img class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-700 group-hover:scale-110 group-hover:grayscale-0" data-alt="Vast minimal mountain landscape under a pale blue morning sky with soft mist and geometric shapes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkBOAHwOh4Y9ru0DW0Vfxs8bzGc3angtlwgPArB8WwOIWbDxF4Qug9EdmraX2vgHHG_cDXK5UMwqF0C0CsZ7vLtW94d0hZJDOa1R5TXQKtcawyGsejKKNNGLMfBcuK914gVoZYTi9fFJwQavhjH5pVib0v4KEBEivNLj7Hk5qDPIOvvpkt8qigyNoYKuz5QNHbIta2oCbkNFhKBKaXQvm1BExlyOHF75Q-ADto6LiuyNBQvVCl9WUJrGcjSogMjgneI-jzFXlGZUpn"/>
+<div class="absolute bottom-4 left-4 z-20">
+<span class="font-headline font-bold text-lg">Silent Peaks</span>
+</div>
+</button>
+<button class="relative group h-40 rounded-lg overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent z-10"></div>
+<img class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-700 group-hover:scale-110 group-hover:grayscale-0" data-alt="Quiet library with bookshelves in soft focus and a warm antique atmosphere with dust motes in light beams" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTB5Ocoxzy285WdrLBeF1-FzBIDzrWzXkM40uushIt54P-O4JJyxQCkcriNMLz7sq9uw_0r_3DSElQwTJm2C9-5mqnh811Hdz9zNiyZhwIkCq_IFWJJQkpHcRLyDNMIRoKCo17RR8EcuDSrTC-FaE2QqahBVHO55wbonx4kWUA0_75Aueg08Y7jEfoxngUaR3ixGnctAq9zL6P5VeEStuby_RgrOFOo4R-5ZDUYJDLVrRP5fg0meA9uDb6aOSMLIu2VWEoVQQOWQQi"/>
+<div class="absolute bottom-4 left-4 z-20">
+<span class="font-headline font-bold text-lg">Old Archive</span>
+</div>
+</button>
+</div>
+</section>
+<!-- Danger Zone -->
+<section class="pt-8 border-t border-outline-variant/10">
+<button class="w-full py-6 px-8 rounded-lg border-2 border-error/20 flex items-center justify-between group hover:bg-error-container/10 transition-colors">
+<div class="text-left">
+<p class="font-bold text-error">Reset All Progress</p>
+<p class="text-xs text-on-surface-variant">This action is permanent</p>
+</div>
+<span class="material-symbols-outlined text-error group-hover:translate-x-1 transition-transform">delete_forever</span>
+</button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-[#111125]/80 backdrop-blur-xl dark:bg-[#111125]/80 shadow-[0_-4px_20px_rgba(212,187,255,0.05)] rounded-t-[2rem]">
+<a class="flex flex-col items-center justify-center text-[#474553] px-5 py-2 hover:text-[#d4bbff] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">timer</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-widest">Focus</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#474553] px-5 py-2 hover:text-[#d4bbff] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">bar_chart</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-widest">Stats</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#474553] px-5 py-2 hover:text-[#d4bbff] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">military_tech</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-widest">Badges</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#ffb954] text-[#452b00] rounded-[1.5rem] px-5 py-2 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-widest">Settings</span>
+</a>
+</nav>
+</body></html>

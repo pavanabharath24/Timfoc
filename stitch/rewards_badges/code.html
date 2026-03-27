@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Timfoc - Rewards &amp; Badges</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface-variant": "#c9c4d5",
+              "on-primary-container": "#ae8de7",
+              "surface-variant": "#333348",
+              "on-tertiary": "#15267b",
+              "primary": "#d4bbff",
+              "error-container": "#93000a",
+              "surface-container-high": "#28283d",
+              "surface-bright": "#37374d",
+              "on-secondary-fixed": "#291800",
+              "inverse-surface": "#e2e0fc",
+              "surface-container": "#1e1e32",
+              "on-error-container": "#ffdad6",
+              "surface-container-highest": "#333348",
+              "surface-container-low": "#1a1a2e",
+              "surface-tint": "#d4bbff",
+              "on-tertiary-fixed": "#00105b",
+              "on-secondary-fixed-variant": "#633f00",
+              "on-tertiary-fixed-variant": "#2f3f92",
+              "on-tertiary-container": "#8897f0",
+              "primary-fixed": "#ebdcff",
+              "surface-container-lowest": "#0c0c1f",
+              "on-primary-fixed-variant": "#543589",
+              "inverse-on-surface": "#2f2e43",
+              "secondary-container": "#c3841b",
+              "background": "#111125",
+              "on-surface": "#e2e0fc",
+              "outline-variant": "#474553",
+              "on-primary-fixed": "#270058",
+              "on-background": "#e2e0fc",
+              "error": "#ffb4ab",
+              "secondary-fixed": "#ffddb4",
+              "outline": "#928f9e",
+              "tertiary-fixed-dim": "#bac3ff",
+              "secondary-fixed-dim": "#ffb954",
+              "tertiary-fixed": "#dee0ff",
+              "primary-container": "#412175",
+              "surface-dim": "#111125",
+              "surface": "#111125",
+              "primary-fixed-dim": "#d4bbff",
+              "on-secondary-container": "#3c2500",
+              "on-error": "#690005",
+              "on-secondary": "#452b00",
+              "inverse-primary": "#6d4ea2",
+              "tertiary": "#bac3ff",
+              "tertiary-container": "#1b2b7f",
+              "secondary": "#ffb954",
+              "on-primary": "#3d1c71"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .film-grain {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Ffilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-secondary/30">
+<div class="film-grain"></div>
+<!-- Top App Bar -->
+<header class="flex items-center justify-between px-6 py-4 w-full bg-[#111125] dark:bg-[#111125] fixed top-0 z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#ffb954]" data-icon="temp_preferences_custom">temp_preferences_custom</span>
+<h1 class="font-['Space_Grotesk'] font-bold tracking-tight text-2xl text-[#ffb954] tracking-tighter">Timfoc</h1>
+</div>
+<button class="hover:bg-[#1a1a2e] transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined text-[#ffb954]" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Progress Section: Editorial Asymmetry -->
+<section class="mb-12 relative overflow-visible">
+<div class="flex items-baseline justify-between mb-4 px-2">
+<div>
+<span class="text-secondary font-headline font-bold text-4xl">Lvl 12</span>
+<p class="text-on-surface-variant text-sm mt-1 uppercase tracking-widest font-semibold">Master of Focus</p>
+</div>
+<div class="text-right">
+<span class="text-on-surface font-headline font-medium">2,450 XP</span>
+<p class="text-outline text-xs">300 XP to next level</p>
+</div>
+</div>
+<!-- Custom Progress Bar: Thick & Soft -->
+<div class="h-6 w-full bg-surface-container-low rounded-full overflow-hidden p-1 shadow-inner">
+<div class="h-full bg-secondary rounded-full relative" style="width: 75%">
+<div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"></div>
+</div>
+</div>
+<!-- Focus Totem: Pixel Art Character (Placeholder Decor) -->
+<div class="absolute -top-16 -right-4 w-24 h-24 bg-tertiary-container/30 backdrop-blur-xl rounded-full flex items-center justify-center p-4 border border-white/5 shadow-2xl overflow-visible">
+<img alt="Focus Companion" class="w-16 h-16 object-contain drop-shadow-lg" data-alt="A charming lo-fi pixel art calico cat sitting inside a glass orb with floating magical sparks, cozy aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuwRaI53pjArxRgYvJqTP8v1swwK_-_WDPk4fm7phIfIUGh2RBm3wc_TXljZhtaPXeekqp5HSZklWeMZFTsXe1xta-5C9zg9hbkhqUg3HhIlH2vXQlf-TnpBOYnFPNM6xI11vf24OLm3yAMnFe5xwGV8s4oubTeckE4ltr8vZ6G9GphqflHnHD8FYWvz1cbjUGfjHyOhWEOdF58FJLIn3cgKgpokZqHn_ybDf1YtPzmGmpp-H2vAuqv6xdG1qbB-VysTCiIbc45njW"/>
+</div>
+</section>
+<!-- Stats Overview: Bento Style -->
+<section class="grid grid-cols-2 gap-4 mb-12">
+<div class="bg-surface-container-low p-6 rounded-lg flex flex-col justify-between">
+<span class="material-symbols-outlined text-primary mb-4" data-icon="local_fire_department" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<div>
+<h3 class="text-2xl font-headline font-bold text-on-surface">15 Days</h3>
+<p class="text-outline text-sm">Longest Streak</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-lg flex flex-col justify-between">
+<span class="material-symbols-outlined text-secondary mb-4" data-icon="military_tech" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<div>
+<h3 class="text-2xl font-headline font-bold text-on-surface">8 / 24</h3>
+<p class="text-outline text-sm">Badges Unlocked</p>
+</div>
+</div>
+</section>
+<!-- Badges Grid -->
+<section>
+<h2 class="font-headline font-bold text-xl mb-8 ml-2 flex items-center gap-3">
+                Achievements
+                <span class="h-px flex-grow bg-surface-variant"></span>
+</h2>
+<div class="grid grid-cols-3 gap-6">
+<!-- Unlocked Badge 1 -->
+<div class="flex flex-col items-center gap-3 group">
+<div class="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center relative group-active:scale-95 transition-transform duration-200">
+<div class="absolute inset-0 bg-secondary/20 blur-xl rounded-full"></div>
+<span class="material-symbols-outlined text-4xl text-secondary z-10" data-icon="light_mode" style="font-variation-settings: 'FILL' 1;">light_mode</span>
+<div class="absolute -bottom-1 -right-1 bg-secondary text-on-secondary text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-background">Lv.2</div>
+</div>
+<span class="text-[11px] font-bold uppercase tracking-tighter text-on-surface text-center px-1">Early Bird</span>
+</div>
+<!-- Unlocked Badge 2 -->
+<div class="flex flex-col items-center gap-3 group">
+<div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center relative group-active:scale-95 transition-transform duration-200">
+<div class="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
+<span class="material-symbols-outlined text-4xl text-primary z-10" data-icon="scuba_diving" style="font-variation-settings: 'FILL' 1;">scuba_diving</span>
+</div>
+<span class="text-[11px] font-bold uppercase tracking-tighter text-on-surface text-center px-1">Deep Diver</span>
+</div>
+<!-- Unlocked Badge 3 -->
+<div class="flex flex-col items-center gap-3 group">
+<div class="w-20 h-20 bg-secondary-container/10 rounded-full flex items-center justify-center relative group-active:scale-95 transition-transform duration-200">
+<div class="absolute inset-0 bg-secondary-container/20 blur-xl rounded-full"></div>
+<span class="material-symbols-outlined text-4xl text-secondary-container z-10" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<span class="text-[11px] font-bold uppercase tracking-tighter text-on-surface text-center px-1">10-Day Streak</span>
+</div>
+<!-- Locked Badge 1 -->
+<div class="flex flex-col items-center gap-3 opacity-40 grayscale">
+<div class="w-20 h-20 bg-surface-variant rounded-full flex items-center justify-center border-2 border-dashed border-outline-variant">
+<span class="material-symbols-outlined text-3xl text-outline" data-icon="lock">lock</span>
+</div>
+<span class="text-[11px] font-bold uppercase tracking-tighter text-outline text-center px-1">Night Owl</span>
+</div>
+<!-- Locked Badge 2 -->
+<div class="flex flex-col items-center gap-3 opacity-40 grayscale">
+<div class="w-20 h-20 bg-surface-variant rounded-full flex items-center justify-center border-2 border-dashed border-outline-variant">
+<span class="material-symbols-outlined text-3xl text-outline" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<span class="text-[11px] font-bold uppercase tracking-tighter text-outline text-center px-1">Zen Master</span>
+</div>
+<!-- Locked Badge 3 -->
+<div class="flex flex-col items-center gap-3 opacity-40 grayscale">
+<div class="w-20 h-20 bg-surface-variant rounded-full flex items-center justify-center border-2 border-dashed border-outline-variant">
+<span class="material-symbols-outlined text-3xl text-outline" data-icon="forest">forest</span>
+</div>
+<span class="text-[11px] font-bold uppercase tracking-tighter text-outline text-center px-1">Grove Keeper</span>
+</div>
+<!-- Locked Badge 4 -->
+<div class="flex flex-col items-center gap-3 opacity-40 grayscale">
+<div class="w-20 h-20 bg-surface-variant rounded-full flex items-center justify-center border-2 border-dashed border-outline-variant">
+<span class="material-symbols-outlined text-3xl text-outline" data-icon="coffee">coffee</span>
+</div>
+<span class="text-[11px] font-bold uppercase tracking-tighter text-outline text-center px-1">Break Expert</span>
+</div>
+<!-- Locked Badge 5 -->
+<div class="flex flex-col items-center gap-3 opacity-40 grayscale">
+<div class="w-20 h-20 bg-surface-variant rounded-full flex items-center justify-center border-2 border-dashed border-outline-variant">
+<span class="material-symbols-outlined text-3xl text-outline" data-icon="workspace_premium">workspace_premium</span>
+</div>
+<span class="text-[11px] font-bold uppercase tracking-tighter text-outline text-center px-1">Elite Focus</span>
+</div>
+<!-- Locked Badge 6 -->
+<div class="flex flex-col items-center gap-3 opacity-40 grayscale">
+<div class="w-20 h-20 bg-surface-variant rounded-full flex items-center justify-center border-2 border-dashed border-outline-variant">
+<span class="material-symbols-outlined text-3xl text-outline" data-icon="groups">groups</span>
+</div>
+<span class="text-[11px] font-bold uppercase tracking-tighter text-outline text-center px-1">Social Hub</span>
+</div>
+</div>
+</section>
+<!-- Bonus Reward Card -->
+<section class="mt-16 bg-gradient-to-br from-primary-container to-surface-container-high p-8 rounded-lg relative overflow-hidden">
+<div class="relative z-10">
+<span class="bg-primary text-on-primary text-[10px] font-black uppercase px-2 py-1 rounded-sm mb-4 inline-block tracking-widest">Seasonal</span>
+<h3 class="font-headline font-bold text-2xl text-on-primary-container mb-2 leading-tight">Harvest Focus <br/>Event</h3>
+<p class="text-on-surface-variant text-sm max-w-[180px] mb-6">Complete 5 sessions today to unlock a cozy autumn theme.</p>
+<button class="bg-secondary text-on-secondary px-6 py-2 rounded-md font-bold text-sm hover:scale-105 transition-transform active:scale-95">Start Now</button>
+</div>
+<!-- Decorative Grain/Shape -->
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-secondary/10 rounded-full blur-3xl"></div>
+<img alt="Autumn Theme" class="absolute right-4 bottom-4 w-24 h-24 opacity-80 rotate-12 pointer-events-none" data-alt="A stylized 3D rendered fall leaf with warm orange and red colors, soft focus, editorial product photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqjRx4pcHGzi1HZqvwqQLLQ2jxjimNQIN1tB6GEsBacN-SwwdXx1ChTGVvamznOJrYOyz56JkoT35z5xGWtZ4V2oRPGbhcEIK5tcTYmiWgynTohTBOQTBVc4zMXLWiPn-HmaHONalUsi9N6x1I9VrX4SYz5FcKJx3fIkOu9-gEeug9aiXeb4eldhJLM73ebNw7DkCmj8Kygc7m9vbJJqEScF8awGdWDRvSQSVL3IrTOmzAWeDB-Cl_55peVjEFTDrWrYCwkPaJGThP"/>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-[#111125]/80 backdrop-blur-xl dark:bg-[#111125]/80 shadow-[0_-4px_20px_rgba(212,187,255,0.05)] rounded-t-[2rem]">
+<a class="flex flex-col items-center justify-center text-[#474553] px-5 py-2 hover:text-[#d4bbff] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-widest mt-1">Focus</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#474553] px-5 py-2 hover:text-[#d4bbff] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-widest mt-1">Stats</span>
+</a>
+<!-- Active Tab: Badges -->
+<a class="flex flex-col items-center justify-center bg-[#ffb954] text-[#452b00] rounded-[1.5rem] px-5 py-2 scale-100 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="military_tech" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-widest mt-1">Badges</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#474553] px-5 py-2 hover:text-[#d4bbff] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-widest mt-1">Settings</span>
+</a>
+</nav>
+</body></html>
