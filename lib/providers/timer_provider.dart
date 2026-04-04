@@ -67,10 +67,8 @@ class TimerProvider with ChangeNotifier {
       final status = data['status'];
       if (status == 'running') {
         _state = TimerState.running;
-        _updateLiveNotification();
       } else if (status == 'paused') {
         _state = TimerState.paused;
-        _updateLiveNotification();
       } else if (status == 'finished') {
         if (_sessionType == SessionType.work) {
           StorageService.addSessionProgress(workDuration ~/ 60);
@@ -79,7 +77,6 @@ class TimerProvider with ChangeNotifier {
       } else if (status == 'stopped') {
         _state = TimerState.initial;
         _remainingSeconds = _sessionType == SessionType.work ? workDuration : breakDuration;
-        NotificationService.cancelTimerNotification();
       }
       notifyListeners();
     }
@@ -133,39 +130,12 @@ class TimerProvider with ChangeNotifier {
     return '$minutes:$seconds';
   }
 
-  /// Update the live notification with current time
-  void _updateLiveNotification() {
-    final sessionLabel = isWorkSession ? 'Focus' : 'Break';
-    final timeStr = _formatTime(_remainingSeconds);
-
-    if (_state == TimerState.paused) {
-      NotificationService.showTimerNotification(
-        title: '⏸ $sessionLabel Paused',
-        timeText: 'Paused at $timeStr — Tap to resume',
-        isPaused: true,
-      );
-    } else {
-      NotificationService.showTimerNotification(
-        title: '🔥 $sessionLabel — $timeStr',
-        timeText: '${_remainingSeconds ~/ 60} min remaining',
-        isPaused: false,
-      );
-    }
-  }
-
   Future<void> _requestPermissions() async {
     // Notification permission (Android 13+)
     final NotificationPermission notificationPermission =
         await FlutterForegroundTask.checkNotificationPermission();
     if (notificationPermission != NotificationPermission.granted) {
       await FlutterForegroundTask.requestNotificationPermission();
-    }
-
-    // Battery optimization exemption (Android 12+)
-    if (Platform.isAndroid) {
-      if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
-        await FlutterForegroundTask.requestIgnoreBatteryOptimization();
-      }
     }
   }
 
@@ -174,22 +144,18 @@ class TimerProvider with ChangeNotifier {
     _state = TimerState.running;
     notifyListeners();
     
-    // 2. Start local UI timer for smooth updates + live notification
+    // 2. Start local UI timer for smooth updates
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
-        _updateLiveNotification();
         notifyListeners();
       } else {
         _finishTimer();
       }
     });
 
-    // 3. Show live notification immediately
-    _updateLiveNotification();
-
-    // 4. Start background service for background execution only
+    // 3. Start background service for background execution only
     await _requestPermissions();
 
     final sessionLabel = isWorkSession ? 'Focus' : 'Break';
@@ -210,7 +176,6 @@ class TimerProvider with ChangeNotifier {
   void pauseTimer() {
     _timer?.cancel();
     _state = TimerState.paused;
-    _updateLiveNotification();
     notifyListeners();
     FlutterForegroundTask.sendDataToTask('pause');
   }
@@ -219,7 +184,6 @@ class TimerProvider with ChangeNotifier {
     _timer?.cancel();
     _state = TimerState.initial;
     _remainingSeconds = _sessionType == SessionType.work ? workDuration : breakDuration;
-    NotificationService.cancelTimerNotification();
     notifyListeners();
     FlutterForegroundTask.stopService();
   }
@@ -254,9 +218,6 @@ class TimerProvider with ChangeNotifier {
   void _finishTimer() {
     _timer?.cancel();
     _state = TimerState.finished;
-    
-    // Clear live timer notification
-    NotificationService.cancelTimerNotification();
 
     // Play vibration and beep
     _playCompletionFeedback();
@@ -268,6 +229,7 @@ class TimerProvider with ChangeNotifier {
     NotificationService.showCompletionNotification(
       title: notifyTitle, 
       body: notifyBody,
+      playSound: soundEffects,
     );
 
     // Stop the foreground service
@@ -318,7 +280,6 @@ class TimerProvider with ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
-    NotificationService.cancelTimerNotification();
     FlutterForegroundTask.removeTaskDataCallback(_onForegroundTaskData);
     super.dispose();
   }

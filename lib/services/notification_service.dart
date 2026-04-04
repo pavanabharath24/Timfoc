@@ -1,20 +1,16 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/services.dart';
+import 'dart:typed_data';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  // Notification IDs
-  static const int timerNotificationId = 100;
   static const int completionNotificationId = 101;
 
-  // Notification channel for live timer
-  static const String timerChannelId = 'timfoc_live_timer';
-  static const String timerChannelName = 'Live Timer';
-  static const String timerChannelDesc = 'Shows live countdown while timer is running';
-
   // Notification channel for completion alerts
-  static const String alertChannelId = 'timfoc_alerts';
+  // Note: We use _v2 to recreate the channel so Android accepts new sound/vibration settings
+  static const String alertChannelId = 'timfoc_alerts_v2';
   static const String alertChannelName = 'Timer Alerts';
   static const String alertChannelDesc = 'Alerts when sessions complete';
 
@@ -34,62 +30,27 @@ class NotificationService {
     );
   }
 
-  /// Show/update the live timer notification with countdown
-  static Future<void> showTimerNotification({
-    required String title,
-    required String timeText,
-    required bool isPaused,
-  }) async {
-    final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      timerChannelId,
-      timerChannelName,
-      channelDescription: timerChannelDesc,
-      importance: Importance.low,
-      priority: Priority.low,
-      ongoing: true,
-      autoCancel: false,
-      showWhen: false,
-      usesChronometer: false,
-      visibility: NotificationVisibility.public,
-      playSound: false,
-      enableVibration: false,
-      onlyAlertOnce: true,
-      category: AndroidNotificationCategory.progress,
-      silent: true,
-    );
-
-    final NotificationDetails details = NotificationDetails(android: androidDetails);
-
-    await flutterLocalNotificationsPlugin.show(
-      id: timerNotificationId,
-      title: title,
-      body: timeText,
-      notificationDetails: details,
-    );
-  }
-
-  /// Cancel the live timer notification
-  static Future<void> cancelTimerNotification() async {
-    await flutterLocalNotificationsPlugin.cancel(id: timerNotificationId);
-  }
-
-  /// Show a completion notification (high priority, with sound)
+  /// Show a completion notification (high priority, with sound and heavy vibration)
   static Future<void> showCompletionNotification({
     required String title,
     required String body,
+    required bool playSound,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    final Int64List vibrationPattern = Int64List.fromList([0, 1000, 500, 1000, 500, 1000]); // 3 strong vibrations
+
+    final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       alertChannelId,
       alertChannelName,
       channelDescription: alertChannelDesc,
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: Importance.max,
+      priority: Priority.max,
       ticker: 'Timer Complete',
-      playSound: true,
+      playSound: playSound,
       enableVibration: true,
+      vibrationPattern: vibrationPattern,
     );
 
-    const NotificationDetails details = NotificationDetails(android: androidDetails);
+    final NotificationDetails details = NotificationDetails(android: androidDetails);
 
     await flutterLocalNotificationsPlugin.show(
       id: completionNotificationId,
