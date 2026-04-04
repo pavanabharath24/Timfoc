@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -199,12 +198,8 @@ class TimerProvider with ChangeNotifier {
       HapticFeedback.heavyImpact();
     } catch (_) {}
 
-    // Play gentle notification sound
-    if (soundEffects) {
-      try {
-        FlutterRingtonePlayer().playNotification();
-      } catch (_) {}
-    }
+    // Custom beep sound is handled via the flutter_local_notifications plugin
+    // during the `showCompletionNotification` step.
   }
 
   void _finishTimer() {

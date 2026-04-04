@@ -10,7 +10,7 @@ class NotificationService {
 
   // Notification channel for completion alerts
   // Note: We use _v2 to recreate the channel so Android accepts new sound/vibration settings
-  static const String alertChannelId = 'timfoc_alerts_v2';
+  static const String alertChannelId = 'timfoc_alerts_v5';
   static const String alertChannelName = 'Timer Alerts';
   static const String alertChannelDesc = 'Alerts when sessions complete';
 
@@ -46,6 +46,7 @@ class NotificationService {
       priority: Priority.max,
       ticker: 'Timer Complete',
       playSound: playSound,
+      sound: playSound ? const RawResourceAndroidNotificationSound('beep') : null,
       enableVibration: true,
       vibrationPattern: vibrationPattern,
     );
