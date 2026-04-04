@@ -1,5 +1,4 @@
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:usage_stats/usage_stats.dart';
 
 @pragma('vm:entry-point')
 void startCallback() {
@@ -113,22 +112,7 @@ class ForegroundTimerHandler extends TaskHandler {
   }
 
   Future<void> _checkForegroundApp() async {
-    try {
-      DateTime endDate = DateTime.now();
-      DateTime startDate = endDate.subtract(const Duration(seconds: 5));
-      List<EventUsageInfo> events = await UsageStats.queryEvents(startDate, endDate);
-      
-      // 1 represents MOVE_TO_FOREGROUND
-      final foregroundEvents = events.where((e) => e.eventType == '1').toList();
-      if (foregroundEvents.isNotEmpty) {
-        foregroundEvents.sort((a, b) => (int.tryParse(b.timeStamp ?? '0') ?? 0).compareTo(int.tryParse(a.timeStamp ?? '0') ?? 0));
-        final topPackage = foregroundEvents.first.packageName;
-        
-        if (topPackage != null && _blockedApps.contains(topPackage)) {
-          FlutterForegroundTask.launchApp();
-        }
-      }
-    } catch (_) {}
+    // TODO: Re-implement with a compatible package when App Locker is ready
   }
 
   @override
