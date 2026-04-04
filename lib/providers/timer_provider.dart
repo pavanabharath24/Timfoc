@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -30,12 +31,14 @@ class TimerProvider with ChangeNotifier {
   void _initForegroundTask() {
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'timfoc_foreground_channel',
+        channelId: 'timfoc_timer_channel_v3',
         channelName: 'Timfoc Active Timer',
-        channelDescription: 'Maintains the timer in the background',
-        channelImportance: NotificationChannelImportance.LOW,
-        priority: NotificationPriority.LOW,
+        channelDescription: 'Shows live countdown while focusing',
+        channelImportance: NotificationChannelImportance.DEFAULT,
+        priority: NotificationPriority.DEFAULT,
         visibility: NotificationVisibility.VISIBILITY_PUBLIC,
+        playSound: false,
+        enableVibration: false,
       ),
       iosNotificationOptions: const IOSNotificationOptions(
         showNotification: true,
@@ -133,7 +136,7 @@ class TimerProvider with ChangeNotifier {
     _state = TimerState.running;
     notifyListeners();
     
-    // 2. Start local UI timer to guarantee butter-smooth updates while app is open
+    // 2. Start local UI timer for butter-smooth updates while app is open
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
@@ -144,16 +147,24 @@ class TimerProvider with ChangeNotifier {
       }
     });
 
-    // 3. Coordinate with background service (Async tasks)
+    // 3. Coordinate with background service
     await _requestPermissions();
+
+    // Save state for the background task
+    final sessionLabel = isWorkSession ? 'Focus' : 'Break';
     await FlutterForegroundTask.saveData(key: 'remainingSeconds', value: _remainingSeconds);
+    await FlutterForegroundTask.saveData(key: 'sessionLabel', value: sessionLabel);
 
     if (await FlutterForegroundTask.isRunningService) {
       FlutterForegroundTask.sendDataToTask('resume'); 
     } else {
       await FlutterForegroundTask.startService(
-        notificationTitle: 'Timfoc Active',
+        notificationTitle: 'Timfoc — $sessionLabel',
         notificationText: 'Timer is starting...',
+        notificationButtons: [
+          const NotificationButton(id: 'pause', text: 'Pause'),
+          const NotificationButton(id: 'stop', text: 'Stop'),
+        ],
         callback: startCallback,
       );
     }
@@ -180,19 +191,68 @@ class TimerProvider with ChangeNotifier {
     FlutterForegroundTask.stopService();
   }
 
+  /// Triggers vibration and/or beep when session finishes
+  Future<void> _playCompletionFeedback() async {
+    // Haptic feedback using Flutter's built-in services
+    try {
+      // Heavy vibration pattern
+      await HapticFeedback.heavyImpact();
+      await Future.delayed(const Duration(milliseconds: 300));
+      await HapticFeedback.heavyImpact();
+      await Future.delayed(const Duration(milliseconds: 300));
+      await HapticFeedback.heavyImpact();
+    } catch (_) {}
+
+    // System beep sound
+    if (soundEffects) {
+      try {
+        await SystemSound.play(SystemSoundType.alert);
+        // Play it twice for emphasis
+        await Future.delayed(const Duration(milliseconds: 400));
+        await SystemSound.play(SystemSoundType.alert);
+      } catch (_) {}
+    }
+  }
+
   void _finishTimer() {
     _timer?.cancel();
     _state = TimerState.finished;
     
-    String notifyTitle = isWorkSession ? 'Focus Complete!' : 'Break Over!';
-    String notifyBody = isWorkSession ? 'Time for a 5 minute break.' : 'Back to work!';
+    // Play vibration and beep
+    _playCompletionFeedback();
+
+    String notifyTitle = isWorkSession ? 'Focus Complete! 🎉' : 'Break Over! 💪';
+    String notifyBody = isWorkSession ? 'Time for a ${breakDuration ~/ 60} minute break.' : 'Back to work!';
     
     NotificationService.showNotification(
       id: 0, 
       title: notifyTitle, 
-      body: notifyBody
+      body: notifyBody,
     );
+
+    // Stop the foreground service notification
+    FlutterForegroundTask.stopService();
+
     notifyListeners();
+
+    // Auto-start break if setting is enabled and we just finished a work session
+    if (autoStartBreaks && isWorkSession) {
+      _autoTransitionToBreak();
+    }
+  }
+
+  /// Automatically switch to break session and start it
+  Future<void> _autoTransitionToBreak() async {
+    // Small delay so user sees the "finished" state briefly
+    await Future.delayed(const Duration(seconds: 2));
+    
+    _sessionType = SessionType.shortBreak;
+    _remainingSeconds = breakDuration;
+    _state = TimerState.initial;
+    notifyListeners();
+
+    // Auto-start the break timer
+    await startTimer();
   }
 
   void toggleSessionType() {
@@ -202,7 +262,7 @@ class TimerProvider with ChangeNotifier {
 
   // Session management is now handled by background task state
   void updateOnResume(DateTime now) {
-    // This is mostly redundant now but kept for legacy UI sync if needed
+    // Redundant now but kept for legacy UI sync
   }
 
   void setWorkDuration(int minutes) {
@@ -224,6 +284,7 @@ class TimerProvider with ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    FlutterForegroundTask.removeTaskDataCallback(_onForegroundTaskData);
     super.dispose();
   }
 }

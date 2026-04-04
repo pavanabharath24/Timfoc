@@ -55,17 +55,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _onTimerFinished(TimerProvider timerProvider, StatsProvider statsProvider) async {
+    final wasWorkSession = timerProvider.isWorkSession;
     final session = PomodoroSession(
       startTime: DateTime.now().subtract(
-          Duration(seconds: timerProvider.isWorkSession ? timerProvider.workDuration : timerProvider.breakDuration)),
+          Duration(seconds: wasWorkSession ? timerProvider.workDuration : timerProvider.breakDuration)),
       endTime: DateTime.now(),
-      durationMinutes: (timerProvider.isWorkSession ? timerProvider.workDuration : timerProvider.breakDuration) ~/ 60,
-      isWorkSession: timerProvider.isWorkSession,
+      durationMinutes: (wasWorkSession ? timerProvider.workDuration : timerProvider.breakDuration) ~/ 60,
+      isWorkSession: wasWorkSession,
     );
     await statsProvider.addSession(session);
-    timerProvider.stopTimer();
 
-    if (mounted) {
+    // Only show dialog if NOT auto-transitioning to break
+    final willAutoStart = timerProvider.autoStartBreaks && wasWorkSession;
+
+    if (mounted && !willAutoStart) {
+      timerProvider.stopTimer();
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -77,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               Lottie.asset('assets/animations/successful_target.json', height: 200, repeat: false),
               const SizedBox(height: 16),
               Text(
-                session.isWorkSession ? 'Focus Session Complete!' : 'Break Complete!',
+                wasWorkSession ? 'Focus Session Complete!' : 'Break Complete!',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(color: LofiTheme.onSurface),
                 textAlign: TextAlign.center,
               ),
@@ -92,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
       );
     }
+    // If auto-start break is ON, _finishTimer in the provider handles the transition
   }
 
 
@@ -124,7 +129,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.spa, color: LofiTheme.secondary),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset('assets/logo.png', width: 32, height: 32),
+                    ),
                     const SizedBox(width: 8),
                     Text('Timfoc', style: theme.textTheme.displaySmall?.copyWith(color: LofiTheme.secondary)),
                   ],

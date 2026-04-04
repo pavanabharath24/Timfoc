@@ -9,16 +9,19 @@ void startCallback() {
 class ForegroundTimerHandler extends TaskHandler {
   int _remainingSeconds = 0;
   bool _isPaused = false;
+  String _sessionLabel = 'Focus';
   
-  // Custom action buttons
+  // Custom action button IDs
   static const String actionPause = 'pause';
   static const String actionResume = 'resume';
   static const String actionStop = 'stop';
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    final customData = await FlutterForegroundTask.getData<int>(key: 'remainingSeconds');
-    _remainingSeconds = customData ?? 0;
+    final seconds = await FlutterForegroundTask.getData<int>(key: 'remainingSeconds');
+    final label = await FlutterForegroundTask.getData<String>(key: 'sessionLabel');
+    _remainingSeconds = seconds ?? 0;
+    _sessionLabel = label ?? 'Focus';
     _isPaused = false;
     _updateNotification();
   }
@@ -32,7 +35,7 @@ class ForegroundTimerHandler extends TaskHandler {
     _isPaused = true;
     FlutterForegroundTask.sendDataToMain({
       'remainingSeconds': _remainingSeconds,
-      'status': 'paused'
+      'status': 'paused',
     });
     _updateNotification();
   }
@@ -41,11 +44,11 @@ class ForegroundTimerHandler extends TaskHandler {
     _isPaused = true;
     FlutterForegroundTask.sendDataToMain({
       'remainingSeconds': 0,
-      'status': 'finished'
+      'status': 'finished',
     });
     FlutterForegroundTask.updateService(
-      notificationTitle: 'Focus Complete!',
-      notificationText: 'Time is up.',
+      notificationTitle: '$_sessionLabel Complete!',
+      notificationText: 'Session finished.',
       notificationButtons: [],
     );
   }
@@ -55,9 +58,13 @@ class ForegroundTimerHandler extends TaskHandler {
     final seconds = (_remainingSeconds % 60).toString().padLeft(2, '0');
     final timeString = '$minutes:$seconds';
 
+    final title = _isPaused
+        ? 'Timfoc — $_sessionLabel Paused'
+        : 'Timfoc — $_sessionLabel';
+
     FlutterForegroundTask.updateService(
-      notificationTitle: 'Timfoc Active',
-      notificationText: _isPaused ? 'Paused ($timeString)' : 'Focusing: $timeString',
+      notificationTitle: title,
+      notificationText: _isPaused ? '⏸ Paused at $timeString' : '⏱ $timeString remaining',
       notificationButtons: [
         if (!_isPaused)
           const NotificationButton(id: actionPause, text: 'Pause')
@@ -78,19 +85,20 @@ class ForegroundTimerHandler extends TaskHandler {
       // Notify main isolate
       FlutterForegroundTask.sendDataToMain({
         'remainingSeconds': _remainingSeconds,
-        'status': 'running'
+        'status': 'running',
       });
       
-      // Update notification
+      // Update notification every second
       _updateNotification();
     } else if (_remainingSeconds == 0) {
-      _remainingSeconds--; // Prevent multiple calls
+      _remainingSeconds = -1; // Prevent multiple calls
       _finishTimer();
     }
   }
 
   @override
   Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
+    // cleanup
   }
 
   @override

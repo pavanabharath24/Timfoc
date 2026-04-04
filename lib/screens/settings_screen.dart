@@ -30,7 +30,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.spa, color: LofiTheme.secondary),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset('assets/logo.png', width: 32, height: 32),
+                    ),
                     const SizedBox(width: 8),
                     Text('Timfoc', style: theme.textTheme.displaySmall?.copyWith(color: LofiTheme.secondary)),
                   ],
