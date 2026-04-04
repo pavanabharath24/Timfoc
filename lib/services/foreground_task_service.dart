@@ -7,7 +7,6 @@ void startCallback() {
 }
 
 class ForegroundTimerHandler extends TaskHandler {
-  Timer? _timer;
   int _remainingSeconds = 0;
   bool _isPaused = false;
   
@@ -18,58 +17,36 @@ class ForegroundTimerHandler extends TaskHandler {
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    // Get initial duration from shared preferences (FlutterForegroundTask.getData)
     final customData = await FlutterForegroundTask.getData<int>(key: 'remainingSeconds');
     _remainingSeconds = customData ?? 0;
-
-    _startTimer();
+    _isPaused = false;
+    _updateNotification();
   }
 
   void _startTimer() {
-    _timer?.cancel();
     _isPaused = false;
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingSeconds > 0) {
-        _remainingSeconds--;
-        
-        // Notify main isolate
-        FlutterForegroundTask.sendDataToMain({
-          'remainingSeconds': _remainingSeconds,
-          'status': 'running'
-        });
-        
-        // Update notification
-        _updateNotification();
-      } else {
-        _finishTimer();
-      }
-    });
     _updateNotification();
   }
 
   void _pauseTimer() {
-    _timer?.cancel();
     _isPaused = true;
-    
     FlutterForegroundTask.sendDataToMain({
       'remainingSeconds': _remainingSeconds,
       'status': 'paused'
     });
-    
     _updateNotification();
   }
 
   void _finishTimer() {
-    _timer?.cancel();
+    _isPaused = true;
     FlutterForegroundTask.sendDataToMain({
       'remainingSeconds': 0,
       'status': 'finished'
     });
-    
     FlutterForegroundTask.updateService(
       notificationTitle: 'Focus Complete!',
       notificationText: 'Time is up.',
-      notificationButtons: [], // Correct param name for v9
+      notificationButtons: [],
     );
   }
 
@@ -92,11 +69,28 @@ class ForegroundTimerHandler extends TaskHandler {
   }
 
   @override
-  void onRepeatEvent(DateTime timestamp) {}
+  void onRepeatEvent(DateTime timestamp) {
+    if (_isPaused) return;
+
+    if (_remainingSeconds > 0) {
+      _remainingSeconds--;
+      
+      // Notify main isolate
+      FlutterForegroundTask.sendDataToMain({
+        'remainingSeconds': _remainingSeconds,
+        'status': 'running'
+      });
+      
+      // Update notification
+      _updateNotification();
+    } else if (_remainingSeconds == 0) {
+      _remainingSeconds--; // Prevent multiple calls
+      _finishTimer();
+    }
+  }
 
   @override
   Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
-    _timer?.cancel();
   }
 
   @override
@@ -117,7 +111,6 @@ class ForegroundTimerHandler extends TaskHandler {
     } else if (id == actionResume) {
       _startTimer();
     } else if (id == actionStop) {
-      _timer?.cancel();
       FlutterForegroundTask.sendDataToMain({'status': 'stopped'});
       FlutterForegroundTask.stopService();
     }

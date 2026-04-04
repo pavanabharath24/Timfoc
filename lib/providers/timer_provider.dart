@@ -42,7 +42,7 @@ class TimerProvider with ChangeNotifier {
         playSound: false,
       ),
       foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: ForegroundTaskEventAction.nothing(),
+        eventAction: ForegroundTaskEventAction.repeat(1000),
         autoRunOnBoot: false,
         allowWakeLock: true,
         allowWifiLock: false,
@@ -120,14 +120,20 @@ class TimerProvider with ChangeNotifier {
   
   bool get isWorkSession => _sessionType == SessionType.work;
 
+  Future<void> _requestPermissions() async {
+    final NotificationPermission notificationPermission =
+        await FlutterForegroundTask.checkNotificationPermission();
+    if (notificationPermission != NotificationPermission.granted) {
+      await FlutterForegroundTask.requestNotificationPermission();
+    }
+  }
+
   Future<void> startTimer() async {
+    await _requestPermissions();
     // Save duration so the background task can read it
     await FlutterForegroundTask.saveData(key: 'remainingSeconds', value: _remainingSeconds);
 
     if (await FlutterForegroundTask.isRunningService) {
-      // If service already running, just resume it (send command if needed or handled by buttons)
-      // Actually, our task handler handles start on service launch.
-      // If it's already running and we hit start again, we might need a custom data message.
       FlutterForegroundTask.sendDataToTask('resume'); 
     } else {
       await FlutterForegroundTask.startService(
