@@ -129,8 +129,23 @@ class TimerProvider with ChangeNotifier {
   }
 
   Future<void> startTimer() async {
+    // 1. Update UI instantly
+    _state = TimerState.running;
+    notifyListeners();
+    
+    // 2. Start local UI timer to guarantee butter-smooth updates while app is open
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds > 0) {
+        _remainingSeconds--;
+        notifyListeners();
+      } else {
+        _finishTimer();
+      }
+    });
+
+    // 3. Coordinate with background service (Async tasks)
     await _requestPermissions();
-    // Save duration so the background task can read it
     await FlutterForegroundTask.saveData(key: 'remainingSeconds', value: _remainingSeconds);
 
     if (await FlutterForegroundTask.isRunningService) {
@@ -142,22 +157,27 @@ class TimerProvider with ChangeNotifier {
         callback: startCallback,
       );
     }
-    
-    _state = TimerState.running;
-    notifyListeners();
   }
 
   void pauseTimer() {
-    FlutterForegroundTask.sendDataToTask('pause');
+    // 1. Instantly update UI
+    _timer?.cancel();
     _state = TimerState.paused;
     notifyListeners();
+    
+    // 2. Tell background to pause
+    FlutterForegroundTask.sendDataToTask('pause');
   }
 
   void stopTimer() {
-    FlutterForegroundTask.stopService();
+    // 1. Instantly update UI
+    _timer?.cancel();
     _state = TimerState.initial;
     _remainingSeconds = _sessionType == SessionType.work ? workDuration : breakDuration;
     notifyListeners();
+    
+    // 2. Tell background to stop
+    FlutterForegroundTask.stopService();
   }
 
   void _finishTimer() {
