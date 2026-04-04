@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:lottie/lottie.dart';
 import '../providers/stats_provider.dart';
 import '../services/storage_service.dart';
 import '../theme/lofi_theme.dart';
@@ -32,6 +33,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       body: Column(
         children: [
+          const SizedBox(height: 16),
+          Lottie.asset('assets/animations/calendar.json', height: 120),
           TableCalendar(
             firstDay: DateTime.utc(2023, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),

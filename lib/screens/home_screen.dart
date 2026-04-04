@@ -6,6 +6,7 @@ import '../providers/stats_provider.dart';
 import '../models/pomodoro_session.dart';
 import '../theme/lofi_theme.dart';
 import 'settings_screen.dart';
+import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,6 +41,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  String _getAnimationAsset(TimerProvider provider) {
+    if (provider.state == TimerState.initial) {
+      return 'assets/animations/morty_dance_loader.json';
+    } else if (provider.state == TimerState.running || provider.state == TimerState.paused) {
+      if (provider.isWorkSession) {
+        return 'assets/animations/student.json';
+      } else {
+        return 'assets/animations/cafe.json';
+      }
+    }
+    return 'assets/animations/morty_dance_loader.json';
+  }
+
   void _onTimerFinished(TimerProvider timerProvider, StatsProvider statsProvider) async {
     final session = PomodoroSession(
       startTime: DateTime.now().subtract(
@@ -50,6 +64,34 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
     await statsProvider.addSession(session);
     timerProvider.stopTimer();
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: LofiTheme.surfaceHigh,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Lottie.asset('assets/animations/successful_target.json', height: 200, repeat: false),
+              const SizedBox(height: 16),
+              Text(
+                session.isWorkSession ? 'Focus Session Complete!' : 'Break Complete!',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: LofiTheme.onSurface),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Awesome!', style: TextStyle(color: LofiTheme.secondary, fontWeight: FontWeight.bold)),
+            )
+          ],
+        ),
+      );
+    }
   }
 
 
@@ -127,16 +169,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     center: Stack(
                       alignment: Alignment.center,
                       children: [
-                        // Background image bounded neatly inner circle
+                        // Background animation bounded neatly inner circle
                         ClipOval(
-                          child: ColorFiltered(
-                            colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                            child: Image.network(
-                              'https://lh3.googleusercontent.com/aida-public/AB6AXuC5c6qni-zwStQReVh1Tamty5Xbj0nPXILwoPazPN5VosLRq1HQOaMQhkXKZCSo2KfimGZVjucD7LmxnrMit3v3tlWEiqpFTdXbX-7cf9lfZZZYdM8F9ul6JEYLIlslCpyCv6BqHZDTaR-o7FJ5bCwXLH0EbZ_dufW12rLILMV2MGs6DO_Mu1fC7mgzXBp7lSI3x6UUEfh0yWzfIbJVbZWkkPnlQp8diHjkGEKZwiHgRHkqv-6SQ_pQo5ye-QY0_uPVAJLg1hQuWy4U',
+                          child: Opacity(
+                            opacity: 0.8,
+                            child: Lottie.asset(
+                              _getAnimationAsset(timerProvider),
                               width: 250,
                               height: 250,
-                              fit: BoxFit.cover,
-                              opacity: const AlwaysStoppedAnimation(0.2), // Dimmer, elegant
+                              fit: BoxFit.contain,
                               errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                             ),
                           ),
