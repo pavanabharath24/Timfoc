@@ -1,5 +1,5 @@
-import 'dart:async';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:usage_stats/usage_stats.dart';
 
 @pragma('vm:entry-point')
 void startCallback() {
@@ -10,6 +10,7 @@ class ForegroundTimerHandler extends TaskHandler {
   int _remainingSeconds = 0;
   bool _isPaused = false;
   String _sessionLabel = 'Focus';
+  List<String> _blockedApps = [];
   
   // Custom action button IDs
   static const String actionPause = 'pause';
@@ -20,9 +21,14 @@ class ForegroundTimerHandler extends TaskHandler {
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
     final seconds = await FlutterForegroundTask.getData<int>(key: 'remainingSeconds');
     final label = await FlutterForegroundTask.getData<String>(key: 'sessionLabel');
+    final blockedAppsStr = await FlutterForegroundTask.getData<String>(key: 'blockedApps');
+    
     _remainingSeconds = seconds ?? 0;
     _sessionLabel = label ?? 'Focus';
     _isPaused = false;
+    _blockedApps = (blockedAppsStr != null && blockedAppsStr.isNotEmpty) 
+        ? blockedAppsStr.split(',') 
+        : [];
     _updateNotification();
   }
 
@@ -88,6 +94,11 @@ class ForegroundTimerHandler extends TaskHandler {
         'status': 'running',
       });
       
+      // Check for blocked apps if in Focus mode
+      if (_sessionLabel == 'Focus' && _blockedApps.isNotEmpty) {
+        _checkForegroundApp();
+      }
+      
       // Update notification every second
       _updateNotification();
     } else if (_remainingSeconds == 0) {
@@ -99,6 +110,25 @@ class ForegroundTimerHandler extends TaskHandler {
   @override
   Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
     // cleanup
+  }
+
+  Future<void> _checkForegroundApp() async {
+    try {
+      DateTime endDate = DateTime.now();
+      DateTime startDate = endDate.subtract(const Duration(seconds: 5));
+      List<EventUsageInfo> events = await UsageStats.queryEvents(startDate, endDate);
+      
+      // 1 represents MOVE_TO_FOREGROUND
+      final foregroundEvents = events.where((e) => e.eventType == '1').toList();
+      if (foregroundEvents.isNotEmpty) {
+        foregroundEvents.sort((a, b) => (int.tryParse(b.timeStamp ?? '0') ?? 0).compareTo(int.tryParse(a.timeStamp ?? '0') ?? 0));
+        final topPackage = foregroundEvents.first.packageName;
+        
+        if (topPackage != null && _blockedApps.contains(topPackage)) {
+          FlutterForegroundTask.launchApp();
+        }
+      }
+    } catch (_) {}
   }
 
   @override

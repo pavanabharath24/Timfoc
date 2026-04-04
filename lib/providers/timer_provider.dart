@@ -169,8 +169,10 @@ class TimerProvider with ChangeNotifier {
     await _requestPermissions();
 
     final sessionLabel = isWorkSession ? 'Focus' : 'Break';
+    final blockedApps = StorageService.settingsBox.get('blockedApps', defaultValue: <String>[])?.cast<String>() ?? [];
     await FlutterForegroundTask.saveData(key: 'remainingSeconds', value: _remainingSeconds);
     await FlutterForegroundTask.saveData(key: 'sessionLabel', value: sessionLabel);
+    await FlutterForegroundTask.saveData(key: 'blockedApps', value: blockedApps.join(','));
 
     if (await FlutterForegroundTask.isRunningService) {
       FlutterForegroundTask.sendDataToTask('resume'); 

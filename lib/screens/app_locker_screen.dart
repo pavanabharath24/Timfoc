@@ -31,9 +31,9 @@ class _AppLockerScreenState extends State<AppLockerScreen> {
     _blockedPackages = StorageService.settingsBox.get('blockedApps', defaultValue: <String>[])?.cast<String>() ?? [];
 
     try {
-      _installedApps = await InstalledApps.getInstalledApps(true, true);
+      _installedApps = await InstalledApps.getInstalledApps();
       // Sort alphabetically
-      _installedApps.sort((a, b) => a.name!.compareTo(b.name!));
+      _installedApps.sort((a, b) => a.name.compareTo(b.name));
     } catch (e) {
       debugPrint("Error loading apps: $e");
     }
@@ -48,7 +48,7 @@ class _AppLockerScreenState extends State<AppLockerScreen> {
       if (_blockedPackages.contains(app.packageName)) {
         _blockedPackages.remove(app.packageName);
       } else {
-        _blockedPackages.add(app.packageName!);
+        _blockedPackages.add(app.packageName);
       }
     });
     await StorageService.settingsBox.put('blockedApps', _blockedPackages);
@@ -133,8 +133,8 @@ class _AppLockerScreenState extends State<AppLockerScreen> {
                       leading: app.icon != null
                         ? Image.memory(app.icon!, width: 40, height: 40)
                         : const Icon(Icons.android, size: 40, color: LofiTheme.outline),
-                      title: Text(app.name ?? 'Unknown App', style: theme.textTheme.titleMedium),
-                      subtitle: Text(app.packageName ?? '', style: theme.textTheme.bodySmall?.copyWith(fontSize: 10)),
+                      title: Text(app.name, style: theme.textTheme.titleMedium),
+                      subtitle: Text(app.packageName, style: theme.textTheme.bodySmall?.copyWith(fontSize: 10)),
                       trailing: Switch(
                         value: isBlocked,
                         onChanged: (val) => _toggleBlocked(app),
