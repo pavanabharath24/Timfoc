@@ -23,6 +23,10 @@ class TimerProvider with ChangeNotifier {
   bool autoStartBreaks = false;
   bool syncData = false;
   bool soundEffects = true;
+  
+  bool isContinuousMode = false;
+  int totalStudyMinutes = 0;
+  int accumulatedStudyMinutes = 0;
 
   TimerProvider() {
     _loadSettings();
@@ -102,6 +106,13 @@ class TimerProvider with ChangeNotifier {
   void toggleSoundEffects() {
     soundEffects = !soundEffects;
     StorageService.settingsBox.put('soundEffects', soundEffects);
+    notifyListeners();
+  }
+
+  void toggleContinuousMode(bool value, [int targetMinutes = 0]) {
+    isContinuousMode = value;
+    totalStudyMinutes = targetMinutes;
+    accumulatedStudyMinutes = 0;
     notifyListeners();
   }
 
@@ -222,12 +233,45 @@ class TimerProvider with ChangeNotifier {
     // Stop the foreground service
     FlutterForegroundTask.stopService();
 
+    if (isWorkSession) {
+      accumulatedStudyMinutes += (workDuration ~/ 60);
+    }
+
     notifyListeners();
 
-    // Auto-start break if enabled and just finished work
-    if (autoStartBreaks && isWorkSession) {
-      _autoTransitionToBreak();
+    if (isContinuousMode) {
+      if (isWorkSession) {
+        if (accumulatedStudyMinutes >= totalStudyMinutes) {
+          // Reached target
+          toggleContinuousMode(false);
+        } else {
+          _autoTransitionToBreak();
+        }
+      } else {
+        // Just finished break, transition to work if not done
+        if (accumulatedStudyMinutes < totalStudyMinutes) {
+          _autoTransitionToWork();
+        } else {
+          toggleContinuousMode(false);
+        }
+      }
+    } else {
+      // Auto-start break if enabled and just finished work
+      if (autoStartBreaks && isWorkSession) {
+        _autoTransitionToBreak();
+      }
     }
+  }
+
+  Future<void> _autoTransitionToWork() async {
+    await Future.delayed(const Duration(seconds: 2));
+    
+    _sessionType = SessionType.work;
+    _remainingSeconds = workDuration;
+    _state = TimerState.initial;
+    notifyListeners();
+
+    await startTimer();
   }
 
   Future<void> _autoTransitionToBreak() async {

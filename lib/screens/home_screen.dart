@@ -99,7 +99,73 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     // If auto-start break is ON, _finishTimer in the provider handles the transition
   }
 
-
+  void _showContinuousModeDialog(BuildContext context, TimerProvider provider) {
+    int selectedMinutes = 90; // Default 1hr 30m
+    
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: LofiTheme.surfaceHigh,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text('Continuous Study', style: TextStyle(color: LofiTheme.onSurface)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Set a total study goal. The timer will automatically loop work and break sessions until you reach this target.',
+                    style: TextStyle(color: LofiTheme.onSurfaceVariant, fontSize: 13)),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove, color: LofiTheme.secondary),
+                      onPressed: () {
+                        if (selectedMinutes > 15) setState(() => selectedMinutes -= 15);
+                      },
+                    ),
+                    Text('$selectedMinutes mins', style: const TextStyle(fontSize: 20, color: LofiTheme.onSurface, fontWeight: FontWeight.bold)),
+                    IconButton(
+                      icon: const Icon(Icons.add, color: LofiTheme.secondary),
+                      onPressed: () {
+                        if (selectedMinutes < 600) setState(() => selectedMinutes += 15);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              if (provider.isContinuousMode)
+                TextButton(
+                  onPressed: () {
+                    provider.toggleContinuousMode(false);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Turn Off', style: TextStyle(color: LofiTheme.error)),
+                ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel', style: TextStyle(color: LofiTheme.outline)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: LofiTheme.secondary,
+                  foregroundColor: LofiTheme.background,
+                ),
+                onPressed: () {
+                  provider.toggleContinuousMode(true, selectedMinutes);
+                  Navigator.pop(context);
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        }
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -295,7 +361,38 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ),
               ],
             ),
-            const SizedBox(height: 48),
+            const SizedBox(height: 24),
+
+            // Continuous Study Button
+            if (timerProvider.state == TimerState.initial)
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: timerProvider.isContinuousMode
+                      ? LofiTheme.secondary.withOpacity(0.2)
+                      : LofiTheme.surfaceHigh,
+                  foregroundColor: timerProvider.isContinuousMode
+                      ? LofiTheme.secondary
+                      : LofiTheme.onSurface,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                icon: const Icon(Icons.all_inclusive),
+                label: Text(timerProvider.isContinuousMode 
+                    ? 'Continuous: ${timerProvider.totalStudyMinutes}m (Goal)' 
+                    : 'Setup Continuous Study'),
+                onPressed: () => _showContinuousModeDialog(context, timerProvider),
+              )
+            else if (timerProvider.isContinuousMode)
+               Padding(
+                 padding: const EdgeInsets.symmetric(vertical: 8.0),
+                 child: Text(
+                   'Continuous Goal: ${timerProvider.accumulatedStudyMinutes}m / ${timerProvider.totalStudyMinutes}m',
+                   style: theme.textTheme.labelMedium?.copyWith(color: LofiTheme.secondary),
+                 ),
+               ),
+            
+            const SizedBox(height: 32),
 
             // Session Stats Grid (Bento)
             Row(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/timer_provider.dart';
 import '../theme/lofi_theme.dart';
+import 'app_locker_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -163,6 +164,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const Divider(color: LofiTheme.surfaceHighest, height: 1),
               _buildToggleRow('Sync Data', 'Keep your history safe across devices', timerProvider.syncData, (val) => timerProvider.toggleSyncData()),
             ]),
+            const SizedBox(height: 32),
+
+            // App Locker
+            _buildSectionHeader('PRODUCTIVITY', Icons.lock),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                color: LofiTheme.surfaceLow,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: LofiTheme.secondary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.shield, color: LofiTheme.secondary),
+                ),
+                title: Text('App Locker', style: theme.textTheme.titleMedium?.copyWith(fontSize: 16)),
+                subtitle: Text('Block distracting apps during focus sessions', style: theme.textTheme.bodySmall?.copyWith(fontSize: 12)),
+                trailing: const Icon(Icons.chevron_right, color: LofiTheme.outline),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AppLockerScreen()));
+                },
+              ),
+            ),
             const SizedBox(height: 32),
 
             // Environment
