@@ -199,18 +199,10 @@ class TimerProvider with ChangeNotifier {
       HapticFeedback.heavyImpact();
     } catch (_) {}
 
-    // Play LOUD alarm sound using system alarm ringtone
+    // Play gentle notification sound
     if (soundEffects) {
       try {
-        FlutterRingtonePlayer().playAlarm(
-          volume: 1.0,
-          looping: false,
-          asAlarm: true,
-        );
-        // Stop after 3 seconds
-        Future.delayed(const Duration(seconds: 3), () {
-          FlutterRingtonePlayer().stop();
-        });
+        FlutterRingtonePlayer().playNotification();
       } catch (_) {}
     }
   }
