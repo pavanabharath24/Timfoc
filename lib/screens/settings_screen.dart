@@ -154,7 +154,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _buildSectionHeader('TIMER & WORKFLOW', Icons.timer),
             const SizedBox(height: 16),
             _buildSettingsCard([
-              _buildToggleRow('Auto-start breaks', 'Automatically begin break timer when focus ends', timerProvider.autoStartBreaks, (val) => timerProvider.toggleAutoStartBreaks()),
+              _buildToggleRow(
+                'Auto-start Breaks',
+                'Start break timer automatically after focus ends',
+                timerProvider.autoStartBreaks,
+                (val) => timerProvider.toggleAutoStartBreaks(),
+              ),
               const Divider(color: LofiTheme.surfaceHighest, height: 1),
               _buildToggleRow('Sync Data', 'Keep your history safe across devices', timerProvider.syncData, (val) => timerProvider.toggleSyncData()),
             ]),
@@ -164,7 +169,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _buildSectionHeader('FEEDBACK & ALERTS', Icons.notifications),
             const SizedBox(height: 16),
             _buildSettingsCard([
-              _buildToggleRow('Sound Effects', 'Chimes and completion sounds', timerProvider.soundEffects, (val) => timerProvider.toggleSoundEffects()),
+              _buildToggleRow(
+                'Sound Effects',
+                'Play alert beep when timer finishes',
+                timerProvider.soundEffects,
+                (val) => timerProvider.toggleSoundEffects(),
+              ),
+              const Divider(color: LofiTheme.surfaceHighest, height: 1),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Vibration', style: theme.textTheme.titleMedium?.copyWith(fontSize: 16)),
+                        const SizedBox(height: 4),
+                        Text('Haptic feedback on completion', style: theme.textTheme.bodySmall?.copyWith(fontSize: 12)),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: LofiTheme.secondary.withOpacity(0.1),
+                        border: Border.all(color: LofiTheme.secondary.withOpacity(0.3)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text('Always On', style: theme.textTheme.labelSmall?.copyWith(color: LofiTheme.secondary)),
+                    ),
+                  ],
+                ),
+              ),
               const Divider(color: LofiTheme.surfaceHighest, height: 1),
               Padding(
                 padding: const EdgeInsets.all(16),

@@ -12,6 +12,7 @@ class StatsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final statsProvider = context.watch<StatsProvider>();
+    final todayIndex = DateTime.now().weekday - 1; // 0=Mon, 6=Sun
     
     return SafeArea(
       child: SingleChildScrollView(
@@ -25,7 +26,10 @@ class StatsScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.spa, color: LofiTheme.secondary),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset('assets/logo.png', width: 32, height: 32),
+                    ),
                     const SizedBox(width: 8),
                     Text('Timfoc', style: theme.textTheme.displaySmall?.copyWith(color: LofiTheme.secondary)),
                   ],
@@ -117,13 +121,13 @@ class StatsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildBar('MON', statsProvider.weeklyMomentum[0], false),
-                        _buildBar('TUE', statsProvider.weeklyMomentum[1], false),
-                        _buildBar('WED', statsProvider.weeklyMomentum[2], true),
-                        _buildBar('THU', statsProvider.weeklyMomentum[3], false),
-                        _buildBar('FRI', statsProvider.weeklyMomentum[4], false),
-                        _buildBar('SAT', statsProvider.weeklyMomentum[5], false),
-                        _buildBar('SUN', statsProvider.weeklyMomentum[6], false),
+                        _buildBar('MON', statsProvider.weeklyMomentum[0], todayIndex == 0),
+                        _buildBar('TUE', statsProvider.weeklyMomentum[1], todayIndex == 1),
+                        _buildBar('WED', statsProvider.weeklyMomentum[2], todayIndex == 2),
+                        _buildBar('THU', statsProvider.weeklyMomentum[3], todayIndex == 3),
+                        _buildBar('FRI', statsProvider.weeklyMomentum[4], todayIndex == 4),
+                        _buildBar('SAT', statsProvider.weeklyMomentum[5], todayIndex == 5),
+                        _buildBar('SUN', statsProvider.weeklyMomentum[6], todayIndex == 6),
                       ],
                     ),
                   ),
@@ -253,12 +257,15 @@ class StatsScreen extends StatelessWidget {
 
   Widget _buildBar(String day, double heightFraction, bool isActive) {
     if (heightFraction.isNaN || heightFraction.isInfinite) heightFraction = 0.0;
+    // Ensure bars have a minimum visible height if there's any data
+    final barHeight = heightFraction > 0 ? (120 * heightFraction).clamp(8.0, 120.0) : 4.0;
+    
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
           width: 32,
-          height: 120 * heightFraction,
+          height: barHeight,
           decoration: BoxDecoration(
             color: isActive ? LofiTheme.secondary : LofiTheme.surfaceHigh,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
