@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -31,9 +33,9 @@ class TimerProvider with ChangeNotifier {
   void _initForegroundTask() {
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'timfoc_timer_channel_v4',
-        channelName: 'Timfoc Timer',
-        channelDescription: 'Shows live timer countdown',
+        channelId: 'timfoc_fg_service_v5',
+        channelName: 'Timfoc Background Service',
+        channelDescription: 'Keeps timer running in the background',
         channelImportance: NotificationChannelImportance.LOW,
         priority: NotificationPriority.LOW,
         visibility: NotificationVisibility.VISIBILITY_PUBLIC,
@@ -65,8 +67,10 @@ class TimerProvider with ChangeNotifier {
       final status = data['status'];
       if (status == 'running') {
         _state = TimerState.running;
+        _updateLiveNotification();
       } else if (status == 'paused') {
         _state = TimerState.paused;
+        _updateLiveNotification();
       } else if (status == 'finished') {
         if (_sessionType == SessionType.work) {
           StorageService.addSessionProgress(workDuration ~/ 60);
@@ -75,6 +79,7 @@ class TimerProvider with ChangeNotifier {
       } else if (status == 'stopped') {
         _state = TimerState.initial;
         _remainingSeconds = _sessionType == SessionType.work ? workDuration : breakDuration;
+        NotificationService.cancelTimerNotification();
       }
       notifyListeners();
     }
@@ -122,11 +127,45 @@ class TimerProvider with ChangeNotifier {
   
   bool get isWorkSession => _sessionType == SessionType.work;
 
+  String _formatTime(int totalSeconds) {
+    final minutes = (totalSeconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  /// Update the live notification with current time
+  void _updateLiveNotification() {
+    final sessionLabel = isWorkSession ? 'Focus' : 'Break';
+    final timeStr = _formatTime(_remainingSeconds);
+
+    if (_state == TimerState.paused) {
+      NotificationService.showTimerNotification(
+        title: '⏸ $sessionLabel Paused',
+        timeText: 'Paused at $timeStr — Tap to resume',
+        isPaused: true,
+      );
+    } else {
+      NotificationService.showTimerNotification(
+        title: '🔥 $sessionLabel — $timeStr',
+        timeText: '${_remainingSeconds ~/ 60} min remaining',
+        isPaused: false,
+      );
+    }
+  }
+
   Future<void> _requestPermissions() async {
+    // Notification permission (Android 13+)
     final NotificationPermission notificationPermission =
         await FlutterForegroundTask.checkNotificationPermission();
     if (notificationPermission != NotificationPermission.granted) {
       await FlutterForegroundTask.requestNotificationPermission();
+    }
+
+    // Battery optimization exemption (Android 12+)
+    if (Platform.isAndroid) {
+      if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+        await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+      }
     }
   }
 
@@ -135,18 +174,22 @@ class TimerProvider with ChangeNotifier {
     _state = TimerState.running;
     notifyListeners();
     
-    // 2. Start local UI timer for smooth updates
+    // 2. Start local UI timer for smooth updates + live notification
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
+        _updateLiveNotification();
         notifyListeners();
       } else {
         _finishTimer();
       }
     });
 
-    // 3. Start background service for notification + background execution
+    // 3. Show live notification immediately
+    _updateLiveNotification();
+
+    // 4. Start background service for background execution only
     await _requestPermissions();
 
     final sessionLabel = isWorkSession ? 'Focus' : 'Break';
@@ -158,7 +201,7 @@ class TimerProvider with ChangeNotifier {
     } else {
       await FlutterForegroundTask.startService(
         notificationTitle: 'Timfoc — $sessionLabel',
-        notificationText: 'Starting...',
+        notificationText: 'Timer running',
         callback: startCallback,
       );
     }
@@ -167,6 +210,7 @@ class TimerProvider with ChangeNotifier {
   void pauseTimer() {
     _timer?.cancel();
     _state = TimerState.paused;
+    _updateLiveNotification();
     notifyListeners();
     FlutterForegroundTask.sendDataToTask('pause');
   }
@@ -175,27 +219,34 @@ class TimerProvider with ChangeNotifier {
     _timer?.cancel();
     _state = TimerState.initial;
     _remainingSeconds = _sessionType == SessionType.work ? workDuration : breakDuration;
+    NotificationService.cancelTimerNotification();
     notifyListeners();
     FlutterForegroundTask.stopService();
   }
 
-  /// Triggers vibration and beep when session finishes
+  /// Triggers vibration and alarm sound when session finishes
   Future<void> _playCompletionFeedback() async {
-    // Strong vibration using platform channel
+    // Strong vibration pattern
     try {
-      await HapticFeedback.heavyImpact();
-      await Future.delayed(const Duration(milliseconds: 250));
-      await HapticFeedback.heavyImpact();
-      await Future.delayed(const Duration(milliseconds: 250));
-      await HapticFeedback.heavyImpact();
+      HapticFeedback.heavyImpact();
+      await Future.delayed(const Duration(milliseconds: 300));
+      HapticFeedback.heavyImpact();
+      await Future.delayed(const Duration(milliseconds: 300));
+      HapticFeedback.heavyImpact();
     } catch (_) {}
 
-    // System alert sound
+    // Play LOUD alarm sound using system alarm ringtone
     if (soundEffects) {
       try {
-        await SystemSound.play(SystemSoundType.alert);
-        await Future.delayed(const Duration(milliseconds: 400));
-        await SystemSound.play(SystemSoundType.alert);
+        FlutterRingtonePlayer().playAlarm(
+          volume: 1.0,
+          looping: false,
+          asAlarm: true,
+        );
+        // Stop after 3 seconds
+        Future.delayed(const Duration(seconds: 3), () {
+          FlutterRingtonePlayer().stop();
+        });
       } catch (_) {}
     }
   }
@@ -204,14 +255,17 @@ class TimerProvider with ChangeNotifier {
     _timer?.cancel();
     _state = TimerState.finished;
     
+    // Clear live timer notification
+    NotificationService.cancelTimerNotification();
+
     // Play vibration and beep
     _playCompletionFeedback();
 
     String notifyTitle = isWorkSession ? 'Focus Complete! 🎉' : 'Break Over! 💪';
     String notifyBody = isWorkSession ? 'Time for a ${breakDuration ~/ 60} minute break.' : 'Back to work!';
     
-    NotificationService.showNotification(
-      id: 0, 
+    // Show high-priority completion notification
+    NotificationService.showCompletionNotification(
       title: notifyTitle, 
       body: notifyBody,
     );
@@ -264,6 +318,7 @@ class TimerProvider with ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    NotificationService.cancelTimerNotification();
     FlutterForegroundTask.removeTaskDataCallback(_onForegroundTaskData);
     super.dispose();
   }

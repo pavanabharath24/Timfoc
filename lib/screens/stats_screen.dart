@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lottie/lottie.dart';
 import '../providers/stats_provider.dart';
 import '../theme/lofi_theme.dart';
 import 'settings_screen.dart';
@@ -78,13 +79,14 @@ class StatsScreen extends StatelessWidget {
                       Text('${statsProvider.currentStreak} Days', style: theme.textTheme.displaySmall?.copyWith(color: LofiTheme.secondary, fontSize: 32)),
                     ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: LofiTheme.secondary.withOpacity(0.1),
-                      shape: BoxShape.circle,
+                  SizedBox(
+                    width: 64,
+                    height: 64,
+                    child: Lottie.asset(
+                      'assets/animations/flame.json',
+                      fit: BoxFit.contain,
+                      repeat: true,
                     ),
-                    child: const Icon(Icons.local_fire_department, color: LofiTheme.secondary, size: 32),
                   ),
                 ],
               ),
