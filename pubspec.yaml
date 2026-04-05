@@ -47,7 +47,6 @@ dependencies:
   flutter_foreground_task: ^9.2.1
   lottie: ^3.1.2
   flutter_ringtone_player: ^4.0.0+4
-  usage_stats: ^1.2.1
   installed_apps: ^1.5.0
 
 

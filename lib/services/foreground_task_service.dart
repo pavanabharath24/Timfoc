@@ -1,5 +1,5 @@
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:usage_stats/usage_stats.dart';
+import 'usage_stats_service.dart';
 
 @pragma('vm:entry-point')
 void startCallback() {
@@ -112,34 +112,18 @@ class ForegroundTimerHandler extends TaskHandler {
     // cleanup
   }
 
-  /// Queries UsageStats to find the currently active app.
-  /// If it's in the blocked list, brings Timfoc back to the foreground.
+  /// Uses native UsageStatsService to detect blocked foreground apps.
+  /// If the MethodChannel isn't available in the background isolate,
+  /// it fails silently — the UI-side blocking still works.
   Future<void> _checkForegroundApp() async {
     try {
-      final now = DateTime.now();
-      // Query usage events from the last 5 seconds
-      final events = await UsageStats.queryEvents(
-        now.subtract(const Duration(seconds: 5)),
-        now,
-      );
-
-      if (events == null || events.isEmpty) return;
-
-      // Find the most recent MOVE_TO_FOREGROUND event (eventType == 1)
-      String? lastForegroundPackage;
-      for (final event in events) {
-        if (event.eventType == '1') {
-          lastForegroundPackage = event.packageName;
-        }
-      }
-
-      if (lastForegroundPackage != null &&
-          _blockedApps.contains(lastForegroundPackage)) {
+      final foregroundPkg = await UsageStatsService.getForegroundApp();
+      if (foregroundPkg != null && _blockedApps.contains(foregroundPkg)) {
         // Blocked app detected — bring Timfoc back to the foreground
         FlutterForegroundTask.launchApp();
       }
     } catch (_) {
-      // Silently fail — permission might not be granted yet
+      // MethodChannel may not be available in background isolate — fail silently
     }
   }
 

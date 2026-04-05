@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:installed_apps/installed_apps.dart';
 import 'package:installed_apps/app_info.dart';
-import 'package:usage_stats/usage_stats.dart';
+import '../services/usage_stats_service.dart';
 import '../services/storage_service.dart';
 import '../theme/lofi_theme.dart';
 
@@ -25,7 +25,7 @@ class _AppLockerScreenState extends State<AppLockerScreen> {
   }
 
   Future<void> _loadData() async {
-    _hasUsagePermission = await UsageStats.checkUsagePermission() ?? false;
+    _hasUsagePermission = await UsageStatsService.checkUsagePermission();
     
     // Load blocked packages from settings box
     _blockedPackages = StorageService.settingsBox.get('blockedApps', defaultValue: <String>[])?.cast<String>() ?? [];
@@ -102,8 +102,8 @@ class _AppLockerScreenState extends State<AppLockerScreen> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: LofiTheme.error, foregroundColor: Colors.white),
                         onPressed: () async {
-                          UsageStats.grantUsagePermission();
-                          // we should reload permission status after returning
+                          UsageStatsService.grantUsagePermission();
+                          // Reload permission status after returning
                           await Future.delayed(const Duration(seconds: 2));
                           _loadData();
                         },
