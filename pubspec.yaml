@@ -48,6 +48,8 @@ dependencies:
   lottie: ^3.1.2
   flutter_ringtone_player: ^4.0.0+4
   installed_apps: ^1.5.0
+  usage_stats_helper:
+    path: plugins/usage_stats_helper
 
 
 dev_dependencies:

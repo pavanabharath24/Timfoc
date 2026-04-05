@@ -1,5 +1,5 @@
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'usage_stats_service.dart';
+import 'package:usage_stats_helper/usage_stats_helper.dart';
 
 @pragma('vm:entry-point')
 void startCallback() {
@@ -117,7 +117,7 @@ class ForegroundTimerHandler extends TaskHandler {
   /// it fails silently — the UI-side blocking still works.
   Future<void> _checkForegroundApp() async {
     try {
-      final foregroundPkg = await UsageStatsService.getForegroundApp();
+      final foregroundPkg = await UsageStatsHelper.getForegroundApp();
       if (foregroundPkg != null && _blockedApps.contains(foregroundPkg)) {
         // Blocked app detected — bring Timfoc back to the foreground
         FlutterForegroundTask.launchApp();

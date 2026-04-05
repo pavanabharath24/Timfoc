@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:installed_apps/installed_apps.dart';
 import 'package:installed_apps/app_info.dart';
-import '../services/usage_stats_service.dart';
+import 'package:usage_stats_helper/usage_stats_helper.dart';
 import '../services/storage_service.dart';
 import '../theme/lofi_theme.dart';
 
@@ -14,9 +14,11 @@ class AppLockerScreen extends StatefulWidget {
 
 class _AppLockerScreenState extends State<AppLockerScreen> {
   List<AppInfo> _installedApps = [];
+  List<AppInfo> _filteredApps = [];
   List<String> _blockedPackages = [];
   bool _isLoading = true;
   bool _hasUsagePermission = false;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -24,22 +26,49 @@ class _AppLockerScreenState extends State<AppLockerScreen> {
     _loadData();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadData() async {
-    _hasUsagePermission = await UsageStatsService.checkUsagePermission();
+    _hasUsagePermission = await UsageStatsHelper.checkUsagePermission();
     
     // Load blocked packages from settings box
     _blockedPackages = StorageService.settingsBox.get('blockedApps', defaultValue: <String>[])?.cast<String>() ?? [];
 
     try {
       _installedApps = await InstalledApps.getInstalledApps();
-      // Sort alphabetically
-      _installedApps.sort((a, b) => a.name.compareTo(b.name));
+      // Sort: blocked apps first, then alphabetically
+      _installedApps.sort((a, b) {
+        final aBlocked = _blockedPackages.contains(a.packageName);
+        final bBlocked = _blockedPackages.contains(b.packageName);
+        if (aBlocked && !bBlocked) return -1;
+        if (!aBlocked && bBlocked) return 1;
+        return a.name.compareTo(b.name);
+      });
+      _filteredApps = List.from(_installedApps);
     } catch (e) {
       debugPrint("Error loading apps: $e");
     }
 
     setState(() {
       _isLoading = false;
+    });
+  }
+
+  void _filterApps(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredApps = List.from(_installedApps);
+      } else {
+        _filteredApps = _installedApps
+            .where((app) =>
+                app.name.toLowerCase().contains(query.toLowerCase()) ||
+                app.packageName.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
     });
   }
 
@@ -102,8 +131,7 @@ class _AppLockerScreenState extends State<AppLockerScreen> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: LofiTheme.error, foregroundColor: Colors.white),
                         onPressed: () async {
-                          UsageStatsService.grantUsagePermission();
-                          // Reload permission status after returning
+                          UsageStatsHelper.grantUsagePermission();
                           await Future.delayed(const Duration(seconds: 2));
                           _loadData();
                         },
@@ -121,11 +149,63 @@ class _AppLockerScreenState extends State<AppLockerScreen> {
                 ),
               ),
 
+              // Search bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: _filterApps,
+                  style: const TextStyle(color: LofiTheme.onSurface),
+                  decoration: InputDecoration(
+                    hintText: 'Search apps...',
+                    hintStyle: const TextStyle(color: LofiTheme.outline),
+                    prefixIcon: const Icon(Icons.search, color: LofiTheme.outline),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: LofiTheme.outline),
+                            onPressed: () {
+                              _searchController.clear();
+                              _filterApps('');
+                            },
+                          )
+                        : null,
+                    filled: true,
+                    fillColor: LofiTheme.surfaceHigh,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+
+              // Blocked count
+              if (_blockedPackages.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: LofiTheme.error.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${_blockedPackages.length} blocked',
+                          style: theme.textTheme.labelSmall?.copyWith(color: LofiTheme.error, fontSize: 11),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               Expanded(
                 child: ListView.builder(
-                  itemCount: _installedApps.length,
+                  itemCount: _filteredApps.length,
                   itemBuilder: (context, index) {
-                    final app = _installedApps[index];
+                    final app = _filteredApps[index];
                     final isBlocked = _blockedPackages.contains(app.packageName);
                     
                     return ListTile(

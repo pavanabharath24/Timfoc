@@ -1,4 +1,4 @@
-package com.timfoc.timfoc
+package com.timfoc.usage_stats_helper
 
 import android.app.AppOpsManager
 import android.app.usage.UsageEvents
@@ -12,13 +12,13 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-class UsageStatsHelper : FlutterPlugin, MethodChannel.MethodCallHandler {
+class UsageStatsHelperPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private var channel: MethodChannel? = null
     private var context: Context? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
-        channel = MethodChannel(binding.binaryMessenger, "com.timfoc.timfoc/usage_stats")
+        channel = MethodChannel(binding.binaryMessenger, "com.timfoc.usage_stats_helper/channel")
         channel?.setMethodCallHandler(this)
     }
 

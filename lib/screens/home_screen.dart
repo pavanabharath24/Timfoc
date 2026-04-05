@@ -7,6 +7,7 @@ import '../models/pomodoro_session.dart';
 import '../theme/lofi_theme.dart';
 import 'settings_screen.dart';
 import 'app_locker_screen.dart';
+import '../services/storage_service.dart';
 import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -450,6 +451,52 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ],
                 ),
               ),
+            ),
+
+            // Show blocked apps the user has added
+            Builder(
+              builder: (context) {
+                final blockedApps = StorageService.settingsBox
+                    .get('blockedApps', defaultValue: <String>[])
+                    ?.cast<String>() ?? [];
+                if (blockedApps.isEmpty) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: blockedApps.map((pkg) {
+                      // Extract readable name from package: "com.instagram.android" → "Instagram"
+                      final parts = pkg.split('.');
+                      String label = parts.length >= 2 ? parts[parts.length - 2] : parts.last;
+                      if (label == 'android' && parts.length >= 3) label = parts[parts.length - 3];
+                      label = label[0].toUpperCase() + label.substring(1);
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: LofiTheme.error.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: LofiTheme.error.withOpacity(0.25)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.block, color: LofiTheme.error, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              label,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: LofiTheme.error,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
             ),
 
             // Quote

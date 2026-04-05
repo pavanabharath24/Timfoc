@@ -901,6 +901,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  usage_stats_helper:
+    dependency: "direct main"
+    description:
+      path: "plugins/usage_stats_helper"
+      relative: true
+    source: path
+    version: "1.0.0"
   uuid:
     dependency: "direct main"
     description:
