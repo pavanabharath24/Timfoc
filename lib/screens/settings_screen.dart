@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/timer_provider.dart';
 import '../theme/lofi_theme.dart';
-// App Locker coming soon — requires compatible usage stats package
+import 'app_locker_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -186,18 +186,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 title: Text('App Locker', style: theme.textTheme.titleMedium?.copyWith(fontSize: 16)),
                 subtitle: Text('Block distracting apps during focus sessions', style: theme.textTheme.bodySmall?.copyWith(fontSize: 12)),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: LofiTheme.secondary.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text('Coming Soon', style: theme.textTheme.labelSmall?.copyWith(color: LofiTheme.secondary, fontSize: 11)),
-                ),
+                trailing: const Icon(Icons.chevron_right, color: LofiTheme.outline),
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('App Locker is coming in the next update!'), backgroundColor: LofiTheme.surfaceHighest),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AppLockerScreen()));
                 },
               ),
             ),

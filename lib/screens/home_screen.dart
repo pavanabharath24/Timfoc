@@ -6,6 +6,7 @@ import '../providers/stats_provider.dart';
 import '../models/pomodoro_session.dart';
 import '../theme/lofi_theme.dart';
 import 'settings_screen.dart';
+import 'app_locker_screen.dart';
 import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -398,9 +399,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             Row(
               children: [
                 Expanded(
-                  child: _BentoStat(
-                    icon: Icons.local_fire_department,
-                    iconColor: LofiTheme.secondary,
+                  child: _BentoStatWithFlame(
                     label: 'DAILY STREAK',
                     value: '${statsProvider.currentStreak} Days',
                   ),
@@ -415,6 +414,42 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+
+            // Add Distracting App button below the cards
+            GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppLockerScreen())),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: LofiTheme.surfaceHigh.withOpacity(0.5),
+                  border: Border.all(color: LofiTheme.secondary.withOpacity(0.2)),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: LofiTheme.secondary.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Icon(Icons.add, color: LofiTheme.secondary, size: 18),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Add Distracting App',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontSize: 14,
+                        color: LofiTheme.secondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             // Quote
@@ -489,6 +524,57 @@ class _ControlButton extends StatelessWidget {
   }
 }
 
+/// Daily Streak card with animated Lottie flame instead of static fire icon
+class _BentoStatWithFlame extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _BentoStatWithFlame({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: LofiTheme.surfaceHigh.withOpacity(0.5),
+        border: Border.all(color: LofiTheme.outline.withOpacity(0.1)),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Lottie flame animation replaces the old fire icon
+          SizedBox(
+            width: 40,
+            height: 40,
+            child: Lottie.asset(
+              'assets/animations/flame_streak.json',
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: LofiTheme.secondary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.local_fire_department, color: LofiTheme.secondary, size: 24),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(label, style: theme.textTheme.labelSmall?.copyWith(fontSize: 10, color: LofiTheme.onSurfaceVariant)),
+          const SizedBox(height: 4),
+          Text(value, style: theme.textTheme.displaySmall?.copyWith(fontSize: 20)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Generic stat card with icon
 class _BentoStat extends StatelessWidget {
   final IconData icon;
   final Color iconColor;

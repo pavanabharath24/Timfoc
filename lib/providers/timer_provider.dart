@@ -70,14 +70,28 @@ class TimerProvider with ChangeNotifier {
       final status = data['status'];
       if (status == 'running') {
         _state = TimerState.running;
+        // Ensure the local UI timer is running so the UI ticks smoothly
+        if (_timer == null || !_timer!.isActive) {
+          _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+            if (_remainingSeconds > 0) {
+              _remainingSeconds--;
+              notifyListeners();
+            } else {
+              _finishTimer();
+            }
+          });
+        }
       } else if (status == 'paused') {
+        _timer?.cancel();
         _state = TimerState.paused;
       } else if (status == 'finished') {
+        _timer?.cancel();
         if (_sessionType == SessionType.work) {
           StorageService.addSessionProgress(workDuration ~/ 60);
         }
         _finishTimer();
       } else if (status == 'stopped') {
+        _timer?.cancel();
         _state = TimerState.initial;
         _remainingSeconds = _sessionType == SessionType.work ? workDuration : breakDuration;
       }
